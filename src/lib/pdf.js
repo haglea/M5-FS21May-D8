@@ -1,5 +1,6 @@
 import PdfPrinter from "pdfmake" 
 import { encodeImageUrl } from "./imageuri.js"
+import { convertHtml } from "./htmlconvert.js"
 
 const fonts = {
     Roboto: {
@@ -13,6 +14,7 @@ const fonts = {
 export const getPDFReadableStream = async (data) => {
     const printer = new PdfPrinter(fonts)
     const blogposturl = await encodeImageUrl(data.cover) 
+    const blogpostcontent = convertHtml(data.content)
     const docDefinition = {
         content: [ 
             {
@@ -28,7 +30,7 @@ export const getPDFReadableStream = async (data) => {
                 width: 500
             },
             { 
-                text: data.content, 
+                text: blogpostcontent, 
                 style: "blogcontent" 
             }
         ],            
@@ -42,7 +44,7 @@ export const getPDFReadableStream = async (data) => {
                 fontSize: 15, bold: true, margin: [0, 20, 0, 20] 
             },
             blogcontent: {
-                fontSize: 15, italics: true , margin: [0, 10, 0, 10]
+                fontSize: 17, margin: [0, 20, 0, 20], alignment: "justify"
             }                           
         }
       }
