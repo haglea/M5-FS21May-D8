@@ -1,9 +1,12 @@
 /* ---------------- PUT /files/upload ----------------  */
+/* ---------------- GET  /files/PDFDownload ----------------  */
 
 import express from "express"
 import multer from "multer"
 import { getAuthors, writeAuthors, saveAuthorsPicture, getBlogPosts, writeBlogPosts, saveBlogPostsCover } from "../../lib/fs-tools.js"
 import { extname } from "path"
+import { pipeline } from "stream" //core module
+import { getPDFReadableStream } from "../../lib/pdf.js"
 
 const filesRouter = express.Router()
 
@@ -74,6 +77,25 @@ filesRouter.put("/:blogPostID/uploadCover", multer().single("cover"), async (req
 
     await writeBlogPosts(remainingBlogPosts)    
     res.send(updatedBlogPost)
+  } catch (error) {
+    next(error)
+  }
+})
+
+
+filesRouter.get("/PDFDownload/:blogID", async (req, res, next) => {
+  try {
+    const filename = "blogpost.pdf"
+    res.setHeader("Content-Disposition", `attachment; filename=${filename}`) // this header tells the browser to open the "save file as" dialog
+
+    const blogPosts = await getBlogPosts()
+    const blogPost = blogPosts.find(b => b.id === req.params.blogID)
+    const source = getPDFReadableStream(blogPost)
+    const destination = res
+
+    pipeline(source, destination, err => {
+      if (err) next(err)
+    })
   } catch (error) {
     next(error)
   }
