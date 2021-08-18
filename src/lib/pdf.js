@@ -1,4 +1,5 @@
-import PdfPrinter from "pdfmake"
+import PdfPrinter from "pdfmake" 
+import { encodeImageUrl } from "./imageuri.js"
 
 const fonts = {
     Roboto: {
@@ -9,9 +10,9 @@ const fonts = {
     },
   }
 
-export const getPDFReadableStream = data => {
+export const getPDFReadableStream = async (data) => {
     const printer = new PdfPrinter(fonts)
-    const blogposturl = data.cover
+    const blogposturl = await encodeImageUrl(data.cover) 
     const docDefinition = {
         content: [ 
             {
@@ -23,8 +24,8 @@ export const getPDFReadableStream = data => {
                 style: "title"
             },
             { 
-                image: blogposturl, 
-                width: 200
+                image: blogposturl,
+                width: 500
             },
             { 
                 text: data.content, 
